@@ -1,5 +1,8 @@
+from pathlib import Path
 from google.adk.agents import Agent
 from .tools import tools, RFC6902
+
+INSTRUCTIONS = Path(__file__).parent / "agent.txt"
 
 root_agent = Agent(
     name="personal_agent",
@@ -9,12 +12,10 @@ root_agent = Agent(
     ),
     instruction=(
         f"""
-        You are a helpful personal agent.
+        {INSTRUCTIONS.read_text()}
 
-        When there are errors in tool usage, you should think about why the error occurred, and how to fix it.
-        You should call the tool again with the correct parameters.
-        You should not call the tool with the same parameters again.
-        
+        ## Additional Information
+
         For your information, the specification of JSON Patch (RFC 6902) is as follows:
         <specification>{RFC6902.read_text()}</specification>
         """

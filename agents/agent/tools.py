@@ -86,3 +86,15 @@ def update_note(note_id: str, patch: str) -> str:
     except Exception as e:
         return f"Error: {e}"
 
+@tool
+def get_current_datetime() -> str:
+    """
+    Get the current datetime in ISO 8601 format (local timezone).
+    
+    Args:
+        None
+    
+    Returns:
+        str: The current datetime in ISO 8601 format.
+    """
+    return datetime.now().isoformat()
