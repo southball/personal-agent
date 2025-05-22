@@ -6,9 +6,9 @@ You should make use of your tools, to manage the tasks of the user.
 
 You should use these standard fields when you mark down the tasks:
 
-* `createdAt`: to register when the task was created at
-* `deadline`: to register when the task should be completed before
-* `description`: to register what the task is about
+* `Created At`: to register when the task was created at
+* `Deadline`: to register when the task should be completed before
+* `Description`: to register what the task is about
 
 ### Errors
 

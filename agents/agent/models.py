@@ -7,5 +7,22 @@ class Patch(BaseModel):
 
 class Note(BaseModel):
     id: str
-    current: dict
+    current: str
     patches: list[Patch]
+
+class NoteWithoutPatches(BaseModel):
+    id: str
+    current: str
+
+    @classmethod
+    def from_note(cls, note: Note) -> "NoteWithoutPatches":
+        """
+        Create a NoteWithoutPatches instance from a Note instance.
+        
+        Args:
+            note (Note): The Note instance to convert.
+        
+        Returns:
+            NoteWithoutPatches: The converted NoteWithoutPatches instance.
+        """
+        return cls(id=note.id, current=note.current)

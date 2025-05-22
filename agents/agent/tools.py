@@ -1,10 +1,9 @@
 from pathlib import Path
 from datetime import datetime
 import uuid
-import jsonpatch
-from .models import Note, Patch
+from .models import Note, NoteWithoutPatches, Patch
+from diff_match_patch import diff_match_patch
 
-RFC6902 = Path(__file__).parent.parent.parent / "context" / "rfc6902.txt"
 data_dir = Path(__file__).parent.parent.parent / "data"
 tools = []
 
@@ -22,9 +21,10 @@ def get_all_notes() -> list[Note]:
         None
     
     Returns:
-        list[Note]: A list of all notes.
+        list[NoteWithoutPatches]: A list of all notes.
     """
-    return [Note.model_validate_json(note_path.read_text()) for note_path in data_dir.glob("notes/*.json")]
+    notes = [Note.model_validate_json(note_path.read_text()) for note_path in data_dir.glob("notes/*.json")]
+    return [NoteWithoutPatches.from_note(note) for note in notes]
 
 @tool
 def create_note() -> str:
@@ -40,7 +40,7 @@ def create_note() -> str:
     note_id = str(uuid.uuid4())
     note_path = data_dir / "notes" / f"{note_id}.json"
 
-    note = Note(id=note_id, current={}, patches=[])
+    note = Note(id=note_id, current="", patches=[])
     note_path.parent.mkdir(parents=True, exist_ok=True)
     note_path.write_text(note.model_dump_json())
 
@@ -65,24 +65,27 @@ def get_note(note_id: str) -> Note | str:
         return f"Error: {e}"
 
 @tool
-def update_note(note_id: str, patch: str) -> str:
+def update_note(note_id: str, new_version: str) -> None | str:
     """
-    Update an existing note with a JSON patch.
+    Update an existing note with a new version.
     
     Args:
         note_id (str): The ID of the note to update.
-        patch (str): The JSON patch to apply.
+        new_version (str): The new version of the note.
     
     Returns:
-        str: "OK" if the update was successful, or an error message.
+        None: None if successful, or
+        str: An error message if the update fails.
     """
     try:
         note_path = data_dir / "notes" / f"{note_id}.json"
         note = Note.model_validate_json(note_path.read_text())
-        note.patches.append(Patch(applied_at=datetime.now(), patch=patch))
-        note.current = jsonpatch.JsonPatch.from_string(patch).apply(note.current)
+        dmp = diff_match_patch()
+        patch = dmp.patch_make(note.current, new_version)
+        note.patches.append(Patch(applied_at=datetime.now(), patch=dmp.patch_toText(patch)))
+        note.current = new_version
         note_path.write_text(note.model_dump_json())
-        return "OK"
+        return None
     except Exception as e:
         return f"Error: {e}"
 

@@ -1,6 +1,6 @@
 from pathlib import Path
 from google.adk.agents import Agent
-from .tools import tools, RFC6902
+from .tools import tools
 
 INSTRUCTIONS = Path(__file__).parent / "agent.txt"
 
@@ -13,11 +13,6 @@ root_agent = Agent(
     instruction=(
         f"""
         {INSTRUCTIONS.read_text()}
-
-        ## Additional Information
-
-        For your information, the specification of JSON Patch (RFC 6902) is as follows:
-        <specification>{RFC6902.read_text()}</specification>
         """
     ),
     tools=tools,

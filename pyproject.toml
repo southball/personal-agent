@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "diff-match-patch>=20241021",
     "google-adk>=1.0.0",
-    "jsonpatch>=1.33",
     "pydantic>=2.11.4",
 ]
